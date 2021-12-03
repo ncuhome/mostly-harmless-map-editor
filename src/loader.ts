@@ -110,6 +110,8 @@ export const loadSprites = () => {
       width: 16,
       height: 16
     },
+    
+    // player
     player: {
       x: 384,
       y: 240,
