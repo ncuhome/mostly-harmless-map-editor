@@ -112,15 +112,49 @@ export const loadSprites = () => {
     },
     
     // player
-    player: {
+    playerLeftDown: {
       x: 384,
       y: 240,
       width: 16,
-      height: 16
+      height: 48,
+      sliceX: 1,
+      sliceY: 3,
+      anims: {
+        idle: {
+          from: 0,
+          to: 0
+        },
+        walk: {
+          from: 1,
+          to: 2,
+          loop: true,
+          speed: 4
+        }
+      }
     },
     player2: {
       x: 384,
       y: 0,
+      width: 16,
+      height: 16
+    },
+    // door
+    redDoor: {
+      x: 192,
+      y: 176,
+      width: 16,
+      height: 16
+    },
+    yellowDoor: {
+      x: 224,
+      y: 176,
+      width: 16,
+      height: 16
+    },
+    // tools
+    box: {
+      x: 160,
+      y: 192,
       width: 16,
       height: 16
     }

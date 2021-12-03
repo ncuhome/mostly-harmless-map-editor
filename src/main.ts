@@ -1,4 +1,4 @@
-import kaboom, { Rect, Vec2 } from 'kaboom'
+import kaboom, { GameObj, Rect, Vec2 } from 'kaboom'
 import { makeLevelLeft, makeLevelRight } from './levels'
 import { loadSprites } from './loader'
 
@@ -9,28 +9,35 @@ const k = kaboom({
 
 loadSprites()
 
-
 const levelLeft = makeLevelLeft(5, 5)
 
 const levelRight = makeLevelRight(5, 5)
 
 const playerLeft = add([
-  sprite("player"),
+  sprite("playerLeftDown"),
   pos(levelLeft.pos.x + 16, levelLeft.pos.y + 16),
   area({ height: 16, width: 16 }),
+  solid(),
   k.origin('center'),
   {
-    moving: false
+    moving: false,
+    baseX: levelLeft.pos.x + 16,
+    baseY: levelLeft.pos.y + 16,
   },
 ])
+
+playerLeft.play('idle')
 
 const playerRight = add([
   sprite("player2"),
   pos(levelRight.pos.x + 16, levelRight.pos.y + 16),
   area({ height: 16, width: 16 }),
+  solid(),
   k.origin('center'),
   {
-    moving: false
+    moving: false,
+    baseX: levelRight.pos.x + 16,
+    baseY: levelRight.pos.y + 16,
   },
 ])
 
@@ -60,31 +67,17 @@ const checkMove = (p: typeof playerLeft, pt: Vec2) => {
 }
 
 const animateTo = (p: typeof playerLeft, dir: Vec2) => {
-  // const isX = dir.x > 0 || dir.x < 0
-  // const from = isX ? p.pos.x : p.pos.y
-  // const to = from + (isX ? dir.x : dir.y) * 16
   if (!checkMove(p, vec2(p.pos.x + dir.x * 6, p.pos.y + dir.y * 6))) {
     return
   }
   p.move(dir.x * 60, dir.y * 60)
-  // animate({
-  //   from,
-  //   to,
-  //   onUpdate: (v) => {
-  //     if (isX) {
-  //       p.pos.x = v
-  //     } else {
-  //       p.pos.y = v
-  //     }
-  //   },
-  //   onPlay: () => {
-  //     p.moving = true
-  //   },
-  //   onComplete: () => {
-  //     p.moving = false
-  //   }
-  // })
 }
+
+// const playAnim = (p: typeof playerLeft, dir: Vec2) => {
+//   const isX = dir.x > 0 || dir.x < 0
+//   if (isX) {
+//   }
+// }
 
 onKeyDown(['w', 'up'], () => {
   animateTo(playerLeft, vec2(0, -1))
@@ -92,8 +85,9 @@ onKeyDown(['w', 'up'], () => {
 })
 
 onKeyDown(['s', 'down'], () => {
-  animateTo(playerLeft, vec2(0, 1))
-  animateTo(playerRight, vec2(0, 1))
+  const down = vec2(0, 1)
+  animateTo(playerLeft, down)
+  animateTo(playerRight, down)
 })
 
 onKeyDown(['a', 'left'], () => {
@@ -104,4 +98,168 @@ onKeyDown(['a', 'left'], () => {
 onKeyDown(['d', 'right'], () => {
   animateTo(playerLeft, vec2(1, 0))
   animateTo(playerRight, vec2(1, 0))
+})
+
+// onKeyRelease(['w', 'up', 's', 'down', 'a', 'left', 'd', 'right'], () => {
+//   playerLeft.play('idle')
+// })
+
+
+for (let y = 0; y < levelLeft.size.h; y++) {
+  for (let x = 0; x < levelLeft.size.w; x++) {
+    add([
+      circle(1),
+      color(),
+      pos(vec2(playerLeft.baseX + x * 16, playerLeft.baseY + y * 16)),
+      opacity(0.5),
+      area({ width: 12, height: 12 }),
+      'dot',
+    ])
+  }
+}
+
+for (let y = 0; y < levelRight.size.h; y++) {
+  for (let x = 0; x < levelRight.size.w; x++) {
+    add([
+      circle(1),
+      color(),
+      pos(vec2(playerRight.baseX + x * 16, playerRight.baseY + y * 16)),
+      opacity(0.5),
+      area({ width: 12, height: 12 }),
+      'dot',
+    ])
+  }
+}
+
+
+add([
+  sprite('yellowDoor'),
+  pos(width() / 2 + 12, height() - 16),
+  k.origin('center'),
+  area({ height: 16, width: 16 }),
+  {
+    name: 'yellowDoor',
+  },
+  'tool'
+])
+
+
+add([
+  sprite('redDoor'),
+  pos(width() / 2 - 12, height() - 16),
+  k.origin('center'),
+  area(),
+  {
+    name: 'redDoor',
+  },
+  'tool'
+])
+
+add([
+  sprite('box'),
+  pos(width() / 2 - 32, height() - 16),
+  k.origin('center'),
+  area(),
+  {
+    name: 'box',
+  },
+  'tool'
+])
+
+
+onHover('dot', (dot) => {
+  if (holdingObj) {
+    dot.opacity = 1.0
+  }
+})
+
+onHover('tool', (tool) => {
+  k.cursor('pointer')
+  tool.scale = 1
+})
+
+
+let holdingObj: GameObj<any> | undefined = undefined
+
+onMousePress((pos) => {
+  let replaced = false
+  k.every('tile', (tile) => {
+    if (pos.dist(tile.pos) < 8) {
+      replaced = true
+      add([
+        circle(1),
+        color(),
+        k.pos(tile.pos),
+        opacity(0.5),
+        area({ width: 12, height: 12 }),
+        'dot',
+      ])
+      tile.destroy()
+      holdingObj = add([
+        sprite(tile.name),
+        k.pos(vec2(pos.x + 8, pos.y + 8)),
+        {
+          name: tile.name,
+        }
+      ])
+      k.cursor('default')
+    }
+  })
+  k.every('dot', (dot) => {
+    if (replaced) return
+    if (pos.dist(dot.pos) < 8) {
+      if (holdingObj) {
+        add([
+          sprite(holdingObj.name),
+          area({
+            width: 16 * 0.8,
+            height: 16 * 0.8
+          }),
+          solid(),
+          k.pos(dot.pos),
+          k.origin('center'),
+          {
+            name: holdingObj.name,
+          },
+          'tile'
+        ])
+        dot.destroy()
+        holdingObj.destroy()
+        holdingObj = undefined
+        k.cursor('default')
+      }
+    }
+  })
+  k.every('tool', (tool) => {
+    if (pos.dist(tool.pos) < 8) {
+      if (holdingObj) {
+        holdingObj.destroy()
+      }
+      holdingObj = add([
+        sprite(tool.name),
+        k.pos(vec2(pos.x + 8, pos.y + 8)),
+        {
+          name: tool.name,
+        }
+      ])
+    }
+  })
+})
+
+onMouseMove((pos) => {
+  if (holdingObj) {
+    holdingObj.pos = vec2(pos.x, pos.y)
+  }
+})
+
+onUpdate(() => {
+  every('tool', (tool) => {
+    tool.scale = 0.9
+  })
+
+  every('dot', dot => {
+    dot.opacity = 0.5
+  })
+
+  k.cursor('default')
 })

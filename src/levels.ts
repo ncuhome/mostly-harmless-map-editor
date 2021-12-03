@@ -79,6 +79,8 @@ const makeLevelGrid = (width: number, height: number, conf: GridOpt) => {
 }
 
 export const makeLevelLeft = (w: number, h: number) => {
+  w = w + 1
+  h = h + 1
   const LEFT_LEVEL_WIDTH = 16 * w
   const LEFT_LEVEL_HEIGHT = 16 * h
 
@@ -149,15 +151,18 @@ export const makeLevelLeft = (w: number, h: number) => {
       ]
     },
   })
-  console.log(grid, tiles)
   const l = addLevel(grid, {
     width: 16,
     height: 16,
     pos,
     ...tiles
   });
-  (l as any).pos = pos
-  return l as typeof l & { pos: Vec2 }
+  (l as any).pos = pos;
+  (l as any).size = {
+    w: w - 1,
+    h: h - 1
+  }
+  return l as typeof l & { pos: Vec2, size: { w: number, h: number } }
 }
 
 export const makeLevelRight = (w: number, h: number) => {
@@ -235,6 +240,10 @@ export const makeLevelRight = (w: number, h: number) => {
     pos,
     ...tiles
   });
-  (l as any).pos = pos
-  return l as typeof l & { pos: Vec2 }
+  (l as any).pos = pos;
+  (l as any).size = {
+    w: w - 1,
+    h: h - 1
+  }
+  return l as typeof l & { pos: Vec2, size: { w: number, h: number } }
 }
