@@ -1,11 +1,161 @@
-import { Vec2 } from "kaboom"
+/* eslint-disable brace-style */
+import { Vec2 } from 'kaboom'
+
+const TILE_SET_LEFT = {
+  lt: {
+    key: 'q',
+    val: () => [
+      sprite('q'),
+      area(),
+      layer('bg')
+    ]
+  },
+  t: {
+    key: 'w',
+    val: () => [
+      sprite('w'),
+      area(),
+      layer('bg')
+    ]
+  },
+  rt: {
+    key: 'e',
+    val: () => [
+      sprite('e'),
+      area(),
+      layer('bg')
+    ]
+  },
+  lb: {
+    key: 'z',
+    val: () => [
+      sprite('z'),
+      area(),
+      layer('bg')
+    ]
+  },
+  rb: {
+    key: 'c',
+    val: () => [
+      sprite('c'),
+      area(),
+      layer('bg')
+    ]
+  },
+  b: {
+    key: 'x',
+    val: () => [
+      sprite('x'),
+      area(),
+      layer('bg')
+    ]
+  },
+  l: {
+    key: 'a',
+    val: () => [
+      sprite('a'),
+      area(),
+      layer('bg')
+    ]
+  },
+  r: {
+    key: 'd',
+    val: () => [
+      sprite('d'),
+      area(),
+      layer('bg')
+    ]
+  },
+  c: {
+    key: 's',
+    val: () => [
+      sprite('s'),
+      area(),
+      layer('bg')
+    ]
+  }
+}
+const TILE_SET_RIGHT = {
+  lt: {
+    key: 'u',
+    val: () => [
+      sprite('u'),
+      area(),
+      layer('bg')
+    ]
+  },
+  t: {
+    key: 'i',
+    val: () => [
+      sprite('i'),
+      area(),
+      layer('bg')
+    ]
+  },
+  rt: {
+    key: 'o',
+    val: () => [
+      sprite('o'),
+      area(),
+      layer('bg')
+    ]
+  },
+  lb: {
+    key: 'm',
+    val: () => [
+      sprite('m'),
+      area(),
+      layer('bg')
+    ]
+  },
+  rb: {
+    key: '.',
+    val: () => [
+      sprite('.'),
+      area(),
+      layer('bg')
+    ]
+  },
+  b: {
+    key: ',',
+    val: () => [
+      sprite(','),
+      area(),
+      layer('bg')
+    ]
+  },
+  l: {
+    key: 'j',
+    val: () => [
+      sprite('j'),
+      area(),
+      layer('bg')
+    ]
+  },
+  r: {
+    key: 'l',
+    val: () => [
+      sprite('l'),
+      area(),
+      layer('bg')
+    ]
+  },
+  c: {
+    key: 'k',
+    val: () => [
+      sprite('k'),
+      area(),
+      layer('bg')
+    ]
+  }
+}
 
 type Tile = {
   key: string,
   val: any
 }
 
-type GridOpt = {
+type TileSet = {
   lt: Tile
   t: Tile
   rt: Tile
@@ -17,15 +167,18 @@ type GridOpt = {
   r: Tile
 }
 
-const makeLevelGrid = (width: number, height: number, conf: GridOpt) => {
-  const { lt, t, rt, c, lb, b, rb, l, r } = conf
-  const grid: string[] = []
+const makeTiles = (tileSet: TileSet) => {
   const tiles: any = {}
-  for (const tile of Object.values(conf)) {
+  for (const tile of Object.values(tileSet)) {
     tiles[tile.key] = tile.val
   }
+  return tiles
+}
+const makeLevelGrid = (width: number, height: number, conf: TileSet) => {
+  const { lt, t, rt, c, lb, b, rb, l, r } = conf
+  const grid: string[] = []
   for (let y = 0; y < height; y++) {
-    let row: string[] = []
+    const row: string[] = []
     for (let x = 0; x < width; x++) {
       // top
       if (y === 0) {
@@ -72,178 +225,40 @@ const makeLevelGrid = (width: number, height: number, conf: GridOpt) => {
     }
     grid.push(row.join(''))
   }
-  return {
-    grid,
-    tiles
+  return grid
+}
+
+const makeLevel = (w: number, h: number, side: 'left' | 'right', tileSet: TileSet) => {
+  w = w + 1
+  h = h + 1
+  const LEVEL_WIDTH = 16 * w
+  const LEVEL_HEIGHT = 16 * h
+  const CENTER = width() / 2
+  const rest = (CENTER - LEVEL_WIDTH) / 2
+  const x = side === 'left' ? rest : CENTER + rest
+  const pos = vec2(x, height() / 2 - LEVEL_HEIGHT / 2)
+  const grid = makeLevelGrid(w, h, tileSet)
+  const tiles = makeTiles(tileSet)
+  const l = addLevel(grid, {
+    width: 16,
+    height: 16,
+    pos,
+    ...tiles
+  });
+  (l as any).pos = pos;
+  (l as any).size = {
+    w: w - 1,
+    h: h - 1
   }
+  return l as typeof l & { pos: Vec2, size: { w: number, h: number } }
 }
 
 export const makeLevelLeft = (w: number, h: number) => {
-  w = w + 1
-  h = h + 1
-  const LEFT_LEVEL_WIDTH = 16 * w
-  const LEFT_LEVEL_HEIGHT = 16 * h
-
-  const pos = vec2(width() / 2 - LEFT_LEVEL_WIDTH - 20, height() / 2 - LEFT_LEVEL_HEIGHT / 2)
-
-  const { grid, tiles } = makeLevelGrid(w, h, {
-    lt: {
-      key: 'q',
-      val: () => [
-        sprite("q"),
-        area(),
-      ]
-    },
-    t: {
-      key: 'w',
-      val: () => [
-        sprite("w"),
-        area(),
-      ]
-    },
-    rt: {
-      key: 'e',
-      val: () => [
-        sprite("e"),
-        area(),
-      ]
-    },
-    lb: {
-      key: 'z',
-      val: () => [
-        sprite("z"),
-        area(),
-      ]
-    },
-    rb: {
-      key: 'c',
-      val: () => [
-        sprite("c"),
-        area(),
-      ]
-    },
-    b: {
-      key: 'x',
-      val: () => [
-        sprite("x"),
-        area(),
-      ]
-    },
-    l: {
-      key: 'a',
-      val: () => [
-        sprite("a"),
-        area(),
-      ]
-    },
-    r: {
-      key: 'd',
-      val: () => [
-        sprite("d"),
-        area(),
-      ]
-    },
-    c: {
-      key: 's',
-      val: () => [
-        sprite("s"),
-        area(),
-      ]
-    },
-  })
-  const l = addLevel(grid, {
-    width: 16,
-    height: 16,
-    pos,
-    ...tiles
-  });
-  (l as any).pos = pos;
-  (l as any).size = {
-    w: w - 1,
-    h: h - 1
-  }
-  return l as typeof l & { pos: Vec2, size: { w: number, h: number } }
+  return makeLevel(w, h, 'left', TILE_SET_LEFT)
 }
 
 export const makeLevelRight = (w: number, h: number) => {
-  const RIGHT_LEVEL_HEIGHT = 16 * h
-
-  const pos = vec2(width() / 2 + 20, height() / 2 - RIGHT_LEVEL_HEIGHT / 2)
-  const { grid, tiles } = makeLevelGrid(w, h, {
-    lt: {
-      key: 'u',
-      val: () => [
-        sprite("u"),
-        area(),
-      ]
-    },
-    t: {
-      key: 'i',
-      val: () => [
-        sprite("i"),
-        area(),
-      ]
-    },
-    rt: {
-      key: 'o',
-      val: () => [
-        sprite("o"),
-        area(),
-      ]
-    },
-    lb: {
-      key: 'm',
-      val: () => [
-        sprite("m"),
-        area(),
-      ]
-    },
-    rb: {
-      key: '.',
-      val: () => [
-        sprite("."),
-        area(),
-      ]
-    },
-    b: {
-      key: ',',
-      val: () => [
-        sprite(","),
-        area(),
-      ]
-    },
-    l: {
-      key: 'j',
-      val: () => [
-        sprite("j"),
-        area(),
-      ]
-    },
-    r: {
-      key: 'l',
-      val: () => [
-        sprite("l"),
-        area(),
-      ]
-    },
-    c: {
-      key: 'k',
-      val: () => [
-        sprite("k"),
-        area(),
-      ]
-    },
-  })
-  const l = addLevel(grid, {
-    width: 16,
-    height: 16,
-    pos,
-    ...tiles
-  });
-  (l as any).pos = pos;
-  (l as any).size = {
-    w: w - 1,
-    h: h - 1
-  }
-  return l as typeof l & { pos: Vec2, size: { w: number, h: number } }
+  return makeLevel(w, h, 'right', TILE_SET_RIGHT)
 }
+
+export type Level = ReturnType<typeof makeLevel>
