@@ -1,0 +1,23 @@
+{
+  "name": "mostly-harmless-map-editor",
+  "version": "0.0.0",
+  "scripts": {
+    "build": "tsc && vite build",
+    "dev": "vite",
+    "serve": "vite preview"
+  },
+  "eslintConfig": {
+    "extends": [
+      "@kuss/eslint-config-vanilla"
+    ]
+  },
+  "dependencies": {
+    "kaboom": "^2000.1.6",
+    "popmotion": "^11.0.2"
+  },
+  "devDependencies": {
+    "@kuss/eslint-config-vanilla": "^2.4.0",
+    "typescript": "^4.3.2",
+    "vite": "^2.6.4"
+  }
+}
