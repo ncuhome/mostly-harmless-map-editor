@@ -282,23 +282,24 @@ onMousePress((pos) => {
     if (pos.dist(dot.pos) < CELL_SIZE_HALF) {
       if (holdingObj) {
         if (holdingObj === playerLeft || holdingObj === playerRight) {
-          holdingObj.pos = dot.pos.clone()
+          animateToPos(holdingObj.pos, dot.pos.clone())
           displacedPlayer = true
         } else {
-          add([
+          const added = add([
             sprite(holdingObj.name),
             area({
               width: CELL_SIZE * 0.8,
               height: CELL_SIZE * 0.8
             }),
             solid(),
-            k.pos(dot.pos),
+            k.pos(pos),
             k.origin('center'),
             {
               name: holdingObj.name
             },
             'block'
           ])
+          animateToPos(added.pos, dot.pos.clone())
           dot.destroy()
           holdingObj.destroy()
         }
