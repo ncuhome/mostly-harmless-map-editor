@@ -45,7 +45,6 @@ let levelRight = makeLevelRight(settings.levelRightSizeHeight, settings.levelRig
 const leftGui = gui.addFolder('左边')
 
 const cleanUp = () => {
-  levelLeft.destroy()
   dots.forEach(d => d.destroy())
   every('block', block => block.destroy())
 }
@@ -54,6 +53,7 @@ leftGui.add(settings, 'levelLeftSizeWidth', 2, 8, 1)
   .name('宽')
   .onChange((v: number) => {
     cleanUp()
+    levelLeft.destroy()
     levelLeft = makeLevelLeft(v, settings.levelLeftSizeHeight)
     dots = addDots(levelLeft, levelRight)
   })
@@ -62,6 +62,7 @@ leftGui.add(settings, 'levelLeftSizeHeight', 2, 8, 1)
   .name('长')
   .onChange((v: number) => {
     cleanUp()
+    levelLeft.destroy()
     levelLeft = makeLevelLeft(settings.levelLeftSizeWidth, v)
     dots = addDots(levelLeft, levelRight)
   })
@@ -72,6 +73,7 @@ rightGui.add(settings, 'levelRightSizeWidth', 2, 8, 1)
   .name('宽')
   .onChange((v: number) => {
     cleanUp()
+    levelRight.destroy()
     levelRight = makeLevelRight(v, settings.levelRightSizeHeight)
     dots = addDots(levelLeft, levelRight)
   })
@@ -80,6 +82,7 @@ rightGui.add(settings, 'levelRightSizeHeight', 2, 8, 1)
   .name('长')
   .onChange((v: number) => {
     cleanUp()
+    levelRight.destroy()
     levelRight = makeLevelRight(settings.levelRightSizeWidth, v)
     dots = addDots(levelLeft, levelRight)
   })
